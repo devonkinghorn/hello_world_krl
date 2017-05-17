@@ -6,7 +6,7 @@ A first ruleset for the Quickstart
 >>
     author "Phil Windley"
     logging on
-    shares hello
+    shares hello, monkey, __testing
   }
   
   global {
@@ -14,12 +14,30 @@ A first ruleset for the Quickstart
       msg = "Hello " + obj;
       msg
     }
+    monkey = function(name) {
+      "Hello " + (name => name | "monkey")
+    }
+    __testing = { 
+       "queries": [ { "name": "hello", "args": [ "obj" ] },
+                           { "name": "__testing" } ],
+      "events": [ { "domain": "echo", "type": "hello" },
+       { "domain": "echo", "type": "monkey" } ]
+    }
   }
   
   rule hello_world {
     select when echo hello
     send_directive("say") with
       something = "Hello World"
+  }
+
+  rule hello_monkey {
+    select when echo monkey
+    pre {
+      name = event:attr("name")
+    }
+    send_directive("say") with
+      something = "Hello " + name.defaultsTo("Monkey")
   }
   
 }
